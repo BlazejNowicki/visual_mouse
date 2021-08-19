@@ -1,5 +1,5 @@
 from HandRecognitionModule import HandRecognition
-import pyautogui as ag
+import pyautogui as pag
 import cv2 as cv
 from math import sqrt
 
@@ -7,7 +7,7 @@ from math import sqrt
 def dist(a, b):
     return sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
 
-def operate_mouse(data_points, frame):
+def operate_mouse(data_points, frame, left_click):
     # Define colors
     primary_color = (255, 0, 0)
     secondary_color = (0, 255, 0)
@@ -36,20 +36,29 @@ def operate_mouse(data_points, frame):
     cv.circle(frame, (image_width // 2, image_height // 2), 150, outside_color, thickness=thickness)
 
     # Detect right click
-    right_click = False
+    # left_click = False
     index_knuckle = first_hand[5][:2]
     index_knuckle = [image_width * index_knuckle[0], image_height * index_knuckle[1]]
     middle_finger = first_hand[12][:2]
     middle_finger = [image_width * middle_finger[0], image_height * middle_finger[1]]
-    if dist(middle_finger, index_knuckle) < dist(middle_finger, index_finger) and index_finger_in_center:
-        right_click = True
     
-    if right_click:
+    left_click_flag = dist(middle_finger, index_knuckle) < dist(middle_finger, index_finger) and index_finger_in_center
+    if left_click_flag and not left_click:
+        left_click = True
+        pag.leftClick()
+        print("left-clisk")
         cv.circle(frame, (50,50), 10, accent_color, cv.FILLED)
+    elif not left_click_flag and left_click:
+        left_click = False
+
+    return left_click
+
+
 
 def main():
     webcam = cv.VideoCapture(0)
     hand_rec = HandRecognition()
+    left_click = False
     while webcam.isOpened():
         success, frame = webcam.read()
         frame = cv.flip(frame, 1)
@@ -60,7 +69,7 @@ def main():
         # print(data_points)
 
         if data_points:
-            operate_mouse(data_points, frame)
+            left_click = operate_mouse(data_points, frame, left_click)
 
         cv.imshow("Visual Mouse", frame)
         cv.waitKey(1)
