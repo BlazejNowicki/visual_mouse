@@ -7,6 +7,7 @@ from math import sqrt
 def dist(a, b):
     return sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
 
+
 def operate_mouse(data_points, frame, left_click):
     # Define colors
     primary_color = (255, 0, 0)
@@ -26,11 +27,13 @@ def operate_mouse(data_points, frame, left_click):
     inside_color = outside_color = primary_color
 
     index_finger_in_center = False
+    index_finger_in_outer_circle = False
     if dist(index_finger, center) < 50:
         inside_color = secondary_color
         index_finger_in_center = True
     elif dist(index_finger, center) < 150:
         outside_color = secondary_color
+        index_finger_in_outer_circle = True
 
     cv.circle(frame, (image_width // 2, image_height // 2), 50, inside_color, thickness=thickness)
     cv.circle(frame, (image_width // 2, image_height // 2), 150, outside_color, thickness=thickness)
@@ -46,10 +49,17 @@ def operate_mouse(data_points, frame, left_click):
     if left_click_flag and not left_click:
         left_click = True
         pag.leftClick()
-        print("left-clisk")
+        print("left-click")
         cv.circle(frame, (50,50), 10, accent_color, cv.FILLED)
     elif not left_click_flag and left_click:
         left_click = False
+
+    # Moving mouse around
+    if not index_finger_in_center and index_finger_in_outer_circle:
+        move_horizontally = (index_finger[0] - image_width//2) // 10
+        move_vertically = (index_finger[1] - image_height//2) // 10
+        print(move_horizontally, move_vertically)
+        pag.move(move_horizontally, move_vertically)
 
     return left_click
 
