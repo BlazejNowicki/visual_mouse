@@ -31,12 +31,12 @@ def operate_mouse(data_points, frame, left_click):
     if dist(index_finger, center) < 50:
         inside_color = secondary_color
         index_finger_in_center = True
-    elif dist(index_finger, center) < 150:
+    if dist(index_finger, center) < 250:
         outside_color = secondary_color
         index_finger_in_outer_circle = True
 
     cv.circle(frame, (image_width // 2, image_height // 2), 50, inside_color, thickness=thickness)
-    cv.circle(frame, (image_width // 2, image_height // 2), 150, outside_color, thickness=thickness)
+    cv.circle(frame, (image_width // 2, image_height // 2), 250, outside_color, thickness=thickness)
 
     # Detect right click
     # left_click = False
@@ -55,11 +55,15 @@ def operate_mouse(data_points, frame, left_click):
         left_click = False
 
     # Moving mouse around
-    if not index_finger_in_center and index_finger_in_outer_circle:
-        move_horizontally = (index_finger[0] - image_width//2) // 10
-        move_vertically = (index_finger[1] - image_height//2) // 10
+    # if not index_finger_in_center and index_finger_in_outer_circle:
+    if index_finger_in_outer_circle:
+        move_horizontally = (index_finger[0] - image_width//2) 
+        move_vertically = (index_finger[1] - image_height//2) 
+        # 50 to 250 px radius
+        move_horizontally = 20 * ((move_horizontally)/200)**3
+        move_vertically = 20 * ((move_vertically)/200)**3
         print(move_horizontally, move_vertically)
-        pag.move(move_horizontally, move_vertically)
+        pag.move(move_horizontally, move_vertically, _pause=False)
 
     return left_click
 
