@@ -2,7 +2,7 @@ import mediapipe as mp
 import cv2 as cv
 
 
-class HandRecognition:
+class HandRecognition():
     def __init__(self,
                  static_image_mode=False,
                  max_num_hands=1,
@@ -16,7 +16,7 @@ class HandRecognition:
                                          min_detection_confidence=min_detection_confidence,
                                          min_tracking_confidence=min_tracking_confidence)
 
-    def detect_hands(self, img=None, print_image=True, flip_image=True):
+    def detect_hands(self, img=None, print_image=True, flip_image=True, one_hand_only=False):
         """Detects hands in image, returns list of lists of tuples, where hand[point[x,y,z]]"""
         output = []
         if img is not None:
@@ -37,11 +37,14 @@ class HandRecognition:
                         self.drawing_styles.get_default_hand_connection_style())
                     one_hand = []
                     for landmark in hand_landmarks.landmark:
-                        one_hand.append((landmark.x, landmark.y, landmark.z))
+                        one_hand.append((landmark.x, landmark.y))
                     output.append(one_hand)
             if print_image:
                 cv.imshow('MediaPipe Hands', img)
-        return output, img
+        if output and one_hand_only:
+            return output[0], img
+        else:
+            return output, img
 
 
 # Example for reading hand position from default webcam
